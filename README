@@ -1,3 +1,6 @@
-SMS sender/receiver script
+SMS sender/receiver script with a GSM modem using AT+ commands
 
+Operation modes:
 
+* Serial (GSM modem conected via Serial interface)
+* Http (GSM modem connected trough a Serial-Ethernet adapter)
