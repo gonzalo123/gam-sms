@@ -142,6 +142,9 @@ class Sms
 
         if ($out == "+CPIN: SIM PIN") {
             $this->deviceOpen();
+            if (is_null($pin) || $pin == '') {
+                throw new Exception("PIN ERROR", self::EXCEPTION_PIN_ERROR);
+            }
             $this->sendMessage("AT+CPIN={$pin}\r");
             $out = $this->readPort();
             $this->deviceClose();
