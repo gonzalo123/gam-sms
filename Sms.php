@@ -13,6 +13,7 @@
 class Sms
 {
     private $_serial;
+    private $debug;
     protected $_pinOK = false;
 
     const EXCEPTION_PIN_ERROR = 1;
@@ -26,9 +27,10 @@ class Sms
      *   Sms_Dummy: Mock for testing
      * 
      * @param Sms_Interface $serial
+     * @param Boolean $debug       
      * @return Sms
      */
-    public static function factory($serial)
+    public static function factory($serial, $debug=false)
     {
         if (!($serial instanceof Sms_Serial ||
                 $serial instanceof Sms_Http ||
@@ -44,22 +46,28 @@ class Sms
             '+CPIN: READY'
         ));
 
-        return new self($serial);
+        return new self($serial, $debug);
     }
 
-    protected function __construct($serial)
+    protected function __construct($serial, $debug=false)
     {
         $this->_serial = $serial;
+        $this->_debug  = $debug;
     }
 
     private function readPort($returnBufffer = false)
     {
+        $out = null;
         list($last, $buffer) = $this->_serial->readPort();
         if ($returnBufffer) {
-            return $buffer;
+            $out = $buffer;
         } else {
-            return strtoupper($last);
+            $out = strtoupper($last);
         }
+        if ($this->_debug == true) {
+            echo $out . "\n";
+        }
+        return $out;
     }
 
     private function sendMessage($msg)
