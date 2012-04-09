@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Gam-sms by gonzalo123</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Gam-sms</h1>
+<p>SMS sender/receiver script with a GSM modem using AT+ commands with PHP</p>
+        <p class="view"><a href="https://github.com/gonzalo123/gam-sms">View the Project on GitHub <small>gonzalo123/gam-sms</small></a></p>
+        <ul>
+          <li><a href="https://github.com/gonzalo123/gam-sms/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/gonzalo123/gam-sms/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/gonzalo123/gam-sms">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>SMS sender/receiver script with a GSM modem using AT+ commands</h3>
+
+<h4>Operation modes:</h4>
+
+<ul>
+<li>Serial (GSM modem conected via Serial interface)</li>
+<li>Http (GSM modem connected trough a Serial-Ethernet adapter)</li>
+</ul><h4>Serial example</h4>
+
+<pre><code>require_once('Sms.php');
+require_once('Sms/Interface.php');
+require_once('Sms/Serial.php');
+
+$pin = 1234;
+
+try {
+    $serial = new Sms_Serial;
+    $serial-&gt;deviceSet("/dev/ttyS0");
+    $serial-&gt;confBaudRate(9600);
+    $serial-&gt;confParity('none');
+    $serial-&gt;confCharacterLength(8);
+
+    $sms = Sms::factory($serial)-&gt;insertPin($pin);
+
+    if ($sms-&gt;sendSMS(555987654, "test Hi")) {
+        echo "SMS sent\n";
+    } else {
+        echo "Sent Error\n";
+    }
+
+    // Now read inbox
+    foreach ($sms-&gt;readInbox() as $in) {
+        echo"tlfn: {$in['tlfn']} date: {$in['date']} {$in['hour']}\n{$in['msg']}\n";
+
+        // now delete sms
+        if ($sms-&gt;deleteSms($in['id'])) {
+            echo "SMS Deleted\n";
+        }
+    }
+} catch (Exception $e) {
+    switch ($e-&gt;getCode()) {
+        case Sms::EXCEPTION_NO_PIN:
+            echo "PIN Not set\n";
+            break;
+        case Sms::EXCEPTION_PIN_ERROR:
+            echo "PIN Incorrect\n";
+            break;
+        case Sms::EXCEPTION_SERVICE_NOT_IMPLEMENTED:
+            echo "Service Not implemented\n";
+            break;
+        default:
+            echo $e-&gt;getMessage();
+    }
+}
+</code></pre>
+
+<h4>Serial over http converter example</h4>
+
+<pre><code>&lt;?php 
+require_once('Sms.php'); 
+require_once('Sms/Interface.php'); 
+require_once('Sms/Http.php'); 
+
+$serialEternetConverterIP = '192.168.1.10'; 
+$serialEternetConverterPort = 1113; 
+$pin = 1234; 
+try {
+     $sms = Sms::factory(new Sms_Http($serialEternetConverterIP, $serialEternetConverterPort));
+     $sms-&gt;insertPin($pin);
+
+    if ($sms-&gt;sendSMS(555987654, "test Hi")) {
+        echo "SMS Sent\n";
+    } else {
+        echo "Sent Error\n";
+    }
+
+    // Now read inbox
+    foreach ($sms-&gt;readInbox() as $in) {
+        echo"tlfn: {$in['tlfn']} date: {$in['date']} {$in['hour']}\n{$in['msg']}\n";
+
+        // now delete sms
+        if ($sms-&gt;deleteSms($in['id'])) {
+            echo "SMS Deleted\n";
+        }
+    }
+} catch (Exception $e) {
+    switch ($e-&gt;getCode()) {
+        case Sms::EXCEPTION_NO_PIN:
+            echo "PIN Not set\n";
+            break;
+        case Sms::EXCEPTION_PIN_ERROR:
+            echo "PIN Incorrect\n";
+            break;
+        case Sms::EXCEPTION_SERVICE_NOT_IMPLEMENTED:
+            echo "Service Not implemented\n";
+            break;
+        default:
+            echo $e-&gt;getMessage();
+    }
+}
+</code></pre>
+
+<p>More info:
+<a href="http://gonzalo123.wordpress.com/2011/03/21/howto-sendread-smss-using-a-gsm-modem-at-commands-and-php/">http://gonzalo123.wordpress.com/2011/03/21/howto-sendread-smss-using-a-gsm-modem-at-commands-and-php/</a></p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/gonzalo123">gonzalo123</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
