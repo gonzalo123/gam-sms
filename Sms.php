@@ -115,7 +115,12 @@ class Sms
         if ($this->_pinOK) {
             $text = substr($text, 0, 160);
             $this->deviceOpen();
-            $this->sendMessage("AT+CMGS=\"{$tlfn}\"\r{$text}" . chr(26));
+            
+            $this->sendMessage("AT+CMGS={$tlfn}");
+            $this->sendMessage("\r");
+            $this->sendMessage($text);
+            $this->sendMessage(chr(26));
+            
             $out = $this->readPort();
 
             $this->deviceClose();
