@@ -15,6 +15,7 @@ class Sms
     private $_serial;
     private $debug;
     protected $_pinOK = false;
+    protected $openAT = false;
 
     const EXCEPTION_PIN_ERROR = 1;
     const EXCEPTION_NO_PIN = 2;
@@ -43,7 +44,8 @@ class Sms
             'OK',
             'ERROR',
             '+CPIN: SIM PIN',
-            '+CPIN: READY'
+            '+CPIN: READY',
+            '>'
         ));
 
         return new self($serial, $debug);
@@ -115,8 +117,19 @@ class Sms
         if ($this->_pinOK) {
             $text = substr($text, 0, 160);
             $this->deviceOpen();
-            $this->sendMessage("AT+CMGS=\"{$tlfn}\"\r{$text}" . chr(26));
-            $out = $this->readPort();
+            if ($this->openAT === true) {
+                $this->sendMessage("AT+CMGS=\"{$tlfn}\"\n");
+                $out = $this->readPort();
+                if ($out == '>') {
+                    $this->sendMessage("{$text}" . chr(26));
+                    $out = $this->readPort();
+                } else {
+                    return false;
+                }
+            } else {
+                $this->sendMessage("AT+CMGS=\"{$tlfn}\"\r{$text}" . chr(26));
+                $out = $this->readPort();
+            }
 
             $this->deviceClose();
             if ($out == 'OK') {
@@ -221,6 +234,11 @@ class Sms
         } else {
             throw new Exception("Please insert the PIN", self::EXCEPTION_NO_PIN);
         }
+    }
+    
+    public function setOpenAT($openAT)
+    {
+        $this->openAT = $openAT;
     }
 
 }
